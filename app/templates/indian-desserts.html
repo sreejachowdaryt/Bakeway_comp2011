@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center">
+  <h2><strong>Indian Desserts</strong></h2>
+  <!-- Display search query if available -->
+  {% if query %}
+    <p>Showing results for: <strong>{{ query }}</strong></p>
+  {% endif %}
+  
+  <!-- Sort Dropdown -->
+  <div class="sort-container">
+    <form method="GET" action="{{ url_for('indian_desserts') }}" class="form-inline">
+      <label for="sort" class="mr-2 sort-label">Sort by:</label>
+      <select name="sort" id="sort" class="sort-select" onchange="this.form.submit()">
+        <option value="Default" {% if request.args.get('sort') %}selected{% endif %}>Choose</option>
+        <option value="lowest_to_highest" {% if request.args.get('sort') == 'lowest_to_highest' %}selected{% endif %}>Price: Lowest to Highest</option>
+        <option value="highest_to_lowest" {% if request.args.get('sort') == 'highest_to_lowest' %}selected{% endif %}>Price: Highest to Lowest</option>
+        <option value="A_to_Z" {% if request.args.get('sort') == 'A_to_Z' %}selected{% endif %}>Name: A to Z</option>
+      </select>
+    </form>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    {% for product in products %}
+    <div class="col-md-4 mb-4">
+      <div class="card">
+        <div class="position-relative">
+          <img src="{{ url_for('static', filename=product.image) }}" class="card-img-top" alt="{{ product.name }}">
+          
+          <!-- Out of Stock Label -->
+          {% if product.stock == 0 %}
+          <div class="out-of-stock-label">Sold Out</div>
+          {% endif %}
+          
+          <!-- Like Button -->
+          <a href="#" class="like-button position-absolute" style="top: 10px; right: 10px;" data-product-id="{{ product.id }}">
+            <i class="fas fa-heart"></i>
+          </a>
+        </div>
+        <div class="card-body">
+          <h5 class="card-title"><strong>{{ product.name }}</strong></h5>
+          <p class="card-text">{{ product.description }}</p>
+          <p class="text-primary font-weight-bold">Price: £{{ product.price }}</p>
+          <p>Stock: {% if product.stock > 0 %} {{ product.stock }} available {% else %} Out of stock {% endif %}</p>
+          <div class="d-flex justify-content-between">
+            {% if product.stock > 0 %}
+             <!-- Help from chatgpt on how to remove box shawdow around add to cart which I was facing  -->
+            <form method="POST" action="{{ url_for('add_to_cart') }}" id="addToCartForm{{ product.id }}" style="display: none;">
+              <input type="hidden" name="product_id" value="{{ product.id }}">
+              <button type="submit" class="btn btn-primary">Add to Cart</button>
+            </form>
+            <!-- Button to Trigger the Form Submission -->
+            <a href="javascript:void(0);" onclick="document.getElementById('addToCartForm{{ product.id }}').submit();" class="btn btn-primary">Add to Cart</a>
+            {% else %}
+            <button class="btn btn-primary" disabled>Add to Cart</button>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

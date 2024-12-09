@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Bakeway - Freshly made to you every day. Delicious homemade cakes, cookies, chocolates, and Indian desserts.">
+  <meta name="author" content="Bakeway Team">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Link to custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+  <title>Bakeway - Freshly made to you every day</title>
+</head>
+<body>
+  
+  <!-- Header -->
+<header class="d-flex justify-content-between align-items-center p-3 flex-wrap">
+  <!-- Search Bar on the left -->
+  <div class="search-container">
+    <form action="/search" method="get" class="search-form">
+      <input type="text" name="query" placeholder="Search for items..." class="search-input">
+      <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+    </form>
+  </div>
+
+  <!-- Logo centered -->
+  <div class="logo">
+    <a href="/">
+      <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Bakeway Logo" class="logo-img">
+    </a>
+  </div>
+
+  <!-- Icons on the right -->
+  <div class="header-icons d-flex align-items-center gap-3">
+    {% if current_user.is_authenticated %}
+      <!-- Show Dashboard or Logout link when the user is logged in -->
+      <a href="{{ url_for('dashboard') }}" class="icon-link"><i class="fas fa-user"></i> My Account</a>
+    {% else %}
+      <!-- Show Sign In link when no user is logged in -->
+      <a href="{{ url_for('login') }}" class="icon-link"><i class="fas fa-user"></i> Sign In</a>
+    {% endif %}
+
+
+<!-- Trigger for Wishlist Modal -->
+<a href="javascript:void(0);" class="icon-link" data-toggle="modal" data-target="#wishlistModal">
+  <i class="fas fa-heart"></i>
+</a>
+
+    <a href="/cart" class="icon-link">
+      <i class="fas fa-shopping-cart"></i>
+      <span class="cart-quantity">{{ cart_total_quantity }}</span>
+    </a>
+  </div>
+</header>
+
+<!-- Wishlist Modal -->
+<div class="modal fade" id="wishlistModal" tabindex="-1" aria-labelledby="wishlistModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="wishlistModalLabel">My Wishlist</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <div id="wishlist-items">
+                  <!-- Wishlist items will be dynamically inserted here -->
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+  
+  <!-- Custom Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="/cakes">Cakes</a></li>
+          <li class="nav-item"><a class="nav-link" href="/cookies">Cookies</a></li>
+          <li class="nav-item"><a class="nav-link" href="/chocolates">Chocolates</a></li>
+          <li class="nav-item"><a class="nav-link" href="/indian-desserts">Indian Desserts</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash messages -->
+<div class="flash-message">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+</div>
+
+  <!-- Content -->
+  <div class="container mt-4">
+    {% block content %}
+    {% endblock %}
+  </div>
+
+  <!-- Custom Footer -->
+  <footer>
+    <p class = "information" ><strong>Follow us on: </strong></p><br>
+      <p><a href="#"><i class="fab fa-instagram fa-lg mx-2"></i></a>
+      <a href="#"><i class="fab fa-facebook fa-lg mx-2"></i></a>
+    </p><br>
+    <p class = "information"><strong>Store Address: </strong></p><br>
+    <p class = "inter-info"> Bakeway - All day Fresh<br>
+        Woodhouse lane<br>
+        Leeds UK<br>
+        LS2 3AB </p> <br>
+    <p class = "information"><strong>Contact: </strong></p><br>
+    <p class = "inter-info">0777 049 7035 | 0777 049 7033</p><br>
+    <p class ="copy-rights">&copy; 2024 Bakeway - Freshly made to you every day. All rights reserved.</p>
+  </footer>
+
+  <!-- Bootstrap JS (Popper.js and jQuery included) -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <link rel="stylesheet" type="text.css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent/3.1.1/cookieconsent.min.css" />
+  <script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent/3.1.1/cookieconsent.min.js"></script>
+
+  <!-- Link to JavaScript -->
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+        <h2><strong>Welcome, {{ current_user.name }}!</strong></h2>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Account Details -->
+        <div class="account-details">
+            <h4><strong>Account Details</strong></h4>
+            <p>These are your account details</p>
+            <p><strong>Username:</strong> {{ current_user.name }}</p>
+            <p><strong>Email:</strong> {{ current_user.email }}</p>
+        </div>
+
+        <!-- Change Account Information -->
+        <div class="change-account-info">
+            <h4><strong>Change Account Information</strong></h4>
+            <form action="{{ url_for('update_account') }}" method="POST">
+                <div class="form-group">
+                    <label for="newEmail"><strong>New/Existing Email</strong></label>
+                    <input type="email" id="newEmail" name="newEmail" class="form-control" value="{{ current_user.email }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword"><strong>New Password</strong></label>
+                    <input type="password" id="newPassword" name="newPassword" class="form-control" placeholder="Enter new password">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword"><strong>Confirm New Password</strong></label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Confirm new password">
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- My Orders Section -->
+<div class="my-orders">
+    <h4><strong>My Orders</strong></h4>
+    {% if current_user.orders %}
+        <div class="orders-grid">
+            {% for order in current_user.orders %}
+                <div class="order-box">
+                    <strong>Order #{{ loop.index }}</strong>
+                    <p>Total: £{{ order.total_amount }}</p>
+                    <p>Ordered on: {{ order.date_ordered }}</p>
+                    <ul>
+                        {% for item in order.order_items %}
+                            <li>{{ item.product.name }} (x{{ item.quantity }})</li>
+                        {% endfor %}
+                    </ul>
+                    <!-- Trash Icon to Delete Order -->
+                    <a href="{{ url_for('delete_order', order_id=order.id) }}" class="delete-order-btn" onclick="return confirm('Are you sure you want to delete this order?');">
+                        <i class="fa fa-trash"></i> Delete
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>You have no orders yet.</p>
+    {% endif %}
+</div>
+
+    <!-- Buttons Section -->
+    <div class="buttons-section">
+        <a href="{{ url_for('logout') }}" class="btn btn-primary mb-5">Logout</a>
+        <form method="POST" action="{{ url_for('delete_account') }}" id="deleteAccountForm" style="display: none;">
+            <button type="submit" class="btn btn-primary">Delete Account</button>
+        </form>
+        <a href="javascript:void(0);" onclick="document.getElementById('deleteAccountForm').submit();" class="btn btn-primary mb-5">Delete Account</a>
+        <a href="{{ url_for('home') }}" class="btn btn-primary mb-5">Continue Shopping</a>
+    </div>
+</div>
+{% endblock %}

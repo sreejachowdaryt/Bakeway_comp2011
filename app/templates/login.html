@@ -1,0 +1,36 @@
+<!-- Login for existing customer -->
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+  <h2 class="title"><strong>Customer Login</strong></h2>
+
+  <!-- Container for both sections -->
+  <div class="form-sections-container">
+    <!-- Login Form for Existing Customers -->
+    <div class="form-section">
+      <h4><strong>Registered Customers</strong></h4>
+      <p class="login-intro">If you have an account, sign in with your email address.</p>
+      <form method="post" action="/login" class="form">
+        <label for="login-email">Email Address</label>
+        <input type="email" id="login-email" name="email" required>
+
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" name="password" required>
+
+        <!-- Submit Button for Form -->
+        <button type="submit" class="btn">Sign In</button>
+
+        <a href="/forgot-password" class="link">Forgot Your Password?</a>
+      </form>
+    </div>
+
+    <!-- Navigate to Signup for new customer section -->
+    <div class="form-section">
+      <h4><strong>New Customers</strong></h4>
+      <p class="login-intro">Creating an account has many benefits: faster checkout, multiple addresses, order tracking, and more.</p>
+      <button onclick="window.location.href='/signup'" class="btn">Create an Account</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
