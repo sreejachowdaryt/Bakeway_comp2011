@@ -3,7 +3,7 @@
 $(document).ready(function() {
 setTimeout(function() {
     $(".alert").alert('close');
-}, 3000); // 3000 milliseconds = 3 seconds
+}, 6000); // 3000 milliseconds = 3 seconds
 });
 
 // Cookies settings for the website - Help from section_12 in the module website. 
