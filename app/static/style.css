@@ -1,15 +1,17 @@
 /* Basic styling */
-  h2 {
-    color: #333;
-    font-family: 'Times New Roman', Times, serif;
-    text-align: center;
-    padding: 10px;
-  }
-  .Welcome {
-    text-align: center;
-    padding: 40px;
-    font-family: 'Times New Roman', Times, serif;
-  }
+h2 {
+  color: #333;
+  font-family: 'Times New Roman', Times, serif;
+  text-align: center;
+  padding: 10px;
+}
+
+/* Body styling */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f8f8;
+  margin: 0;
+}
 
 /* Header Styling */
 header {
@@ -19,7 +21,7 @@ header {
   background-color: #f4eeee;
   padding: 10px 20px;
   border-bottom: 1px solid #e0e0e0;
-  flex-wrap: wrap;  /* Allow wrapping for smaller screens */
+  flex-wrap: wrap;  
 }
 
 /* Logo styling */
@@ -86,10 +88,10 @@ header {
 }
 
 .header-icons .icon-link:hover {
-  color: #ff6600;
+  color: darkblue;
 }
 
-/* Responsive header */
+/* Responsive header using media queries */
 @media (max-width: 768px) {
   header {
     flex-direction: column;  
@@ -132,13 +134,6 @@ header {
   box-sizing: border-box;
 }
 
-/* Body styling */
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f8f8f8;
-  margin: 0;
-}
-
 /* Navbar styling */
 .navbar {
   background-color: #f4eeee;
@@ -172,6 +167,7 @@ body {
 .nav-item {
   padding: 10px 20px;
   font-family: 'Times New Roman', Times, serif;
+  font-size: large;
 }
 
 .nav-link {
@@ -181,11 +177,18 @@ body {
 }
 
 .nav-link:hover {
-  color: #ff4500;
+  color: darkblue;
 }
 
 .navbar-toggler {
   border-color: rgba(0, 0, 0, 0.1);  
+}
+
+.navbar-toggler-icon {
+  background-color: #000; /* Fallback color for visibility */
+  border-radius: 3px;
+  width: 30px;
+  height: 3px;
 }
 
 /* Footer styling */
@@ -212,7 +215,7 @@ footer a {
 }
 
 footer a:hover {
-  color: #ff4500;
+  color: darkblue;
 }
 
 .copy-rights{
@@ -222,11 +225,13 @@ footer a:hover {
 
 .information{
   font-family: 'Times New Roman', Times, serif;
-  color: #ff6600;
+  color: darkblue;
+  font-size: large;
 }
 
 .inter-info{
   font-family: 'Times New Roman', Times, serif;
+  font-size: medium;
 }
 
 /* Responsive footer */
@@ -309,6 +314,10 @@ footer a:hover {
   .card-img-top {
       height: 120px;       
   }
+}
+
+.text-primary {
+  color: darkblue !important;/* Replace with a darker shade of blue or another color */
 }
 
 /* Like Button Styling */

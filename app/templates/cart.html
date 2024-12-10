@@ -20,13 +20,13 @@
       <tr id="item-row-{{ item.id }}">
         <td data-label="Image"><img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}" width="50"></td>
         <td data-label="Name">{{ item.name }}</td>
-        <td data-label="Price">£{{ item.price }}</td>
-        <td data-label="Quantity">
-          <button class="update-quantity" data-item-id="{{ item.id }}" data-change="-1">-</button>
-          <span id="quantity-{{ item.id }}">{{ item.quantity }}</span>
-          <button class="update-quantity" data-item-id="{{ item.id }}" data-change="1">+</button>
-      </td>
-        <td data-label="Total" id="total-{{ item.id }}">£{{ item.price * item.quantity }}</td>
+        <td data-label="Price">£{{ item.price | round(2) }}</td>
+        <td>
+          <button class="btn btn-sm btn-secondary decrement-btn" data-id="{{ item.id }}" onclick="updateCart('{{ item.id }}', -1)">-</button>
+          <span class="quantity-cell">{{ item.quantity }}</span>
+          <button class="btn btn-sm btn-secondary increment-btn" data-id="{{ item.id }}" onclick="updateCart('{{ item.id }}', 1)">+</button>
+        </td>
+        <td data-label="Subtotal" id="total-{{ item.id }}">£{{ item.price * item.quantity | round(2) }}</td>
         <td data-label="Remove">
           <a href="{{ url_for('delete_item', item_id=item.id) }}" class="delete-btn">
             <i class="fa fa-trash"></i>
@@ -37,15 +37,15 @@
     </tbody>
   </table>
 </div>
-<p id="total-price" class="font-weight-bold">Total Price: £{{ total_price }}</p>
+<p id="total-price" class="font-weight-bold">Total Price: £{{ total_price | round(2) }}</p>
 
-  {% if not current_user.is_authenticated %}
-  <a href="{{ url_for('login') }}" class="btn btn-primary mb-5">Login to Checkout</a>
-  {% else %}
-  <a href="{{ url_for('checkout') }}" class="btn btn-primary mb-5">Proceed to Checkout</a>
-  {% endif %}
-  <!-- Continue Shopping Button -->
-  <a href="{{ url_for('home') }}" class="btn btn-primary mb-5">Continue Shopping</a>
+{% if not current_user.is_authenticated %}
+<a href="{{ url_for('login') }}" class="btn btn-primary mb-4">Login to Checkout</a>
+{% else %}
+<a href="{{ url_for('checkout') }}" class="btn btn-primary mb-4">Proceed to Checkout</a>
+{% endif %}
+<!-- Continue Shopping Button -->
+<a href="{{ url_for('home') }}" class="btn btn-primary mb-4">Continue Shopping</a>
 
 {% else %}
 <p>Your cart is empty!</p>

@@ -65,12 +65,12 @@
 
     <!-- Buttons Section -->
     <div class="buttons-section">
-        <a href="{{ url_for('logout') }}" class="btn btn-primary mb-5">Logout</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-primary mb-4">Logout</a>
         <form method="POST" action="{{ url_for('delete_account') }}" id="deleteAccountForm" style="display: none;">
-            <button type="submit" class="btn btn-primary">Delete Account</button>
+            <button type="submit" class="btn btn-primary mb-4">Delete Account</button>
         </form>
-        <a href="javascript:void(0);" onclick="document.getElementById('deleteAccountForm').submit();" class="btn btn-primary mb-5">Delete Account</a>
-        <a href="{{ url_for('home') }}" class="btn btn-primary mb-5">Continue Shopping</a>
+        <a href="javascript:void(0);" onclick="document.getElementById('deleteAccountForm').submit();" class="btn btn-primary mb-4">Delete Account</a>
+        <a href="{{ url_for('home') }}" class="btn btn-primary mb-4">Continue Shopping</a>
     </div>
 </div>
 {% endblock %}

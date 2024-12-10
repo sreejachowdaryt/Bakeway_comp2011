@@ -40,35 +40,47 @@ window.addEventListener("load", function () {
     });
   });
 
-// Increment and  decremnet of quanity of the items in the cart webpage
-$(document).ready(function () {
-    $("button.update-quantity").on("click", function () {
-        const itemId = $(this).data("item-id"); // Get the item ID
-        const change = parseInt($(this).data("change")); // +1 for increment, -1 for decrement
+// Incrementing and decrmenting items already present in the cart
+function updateCart(itemId, change) {
+fetch('/update-cart', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ itemId, change })
+})
+.then(response => response.json())
+.then(data => {
+    if (data.status === 'success') {
+        // Get the row that contains the item
+        const row = document.querySelector(`#item-row-${itemId}`);
+        
+        // Update the quantity in the cart table
+        const quantityCell = row.querySelector('.quantity-cell');
+        const subtotalCell = row.querySelector(`#total-${itemId}`);
+        
+        // Update the quantity between the `-` and `+` buttons
+        quantityCell.textContent = data.newQuantity;
 
-        // Send AJAX request to update quantity
-        $.ajax({
-            url: "/update-cart",
-            type: "POST",
-            contentType: "application/json",
-            data: JSON.stringify({ itemId: itemId, change: change }),
-            success: function (response) {
-                if (response.status === "success") {
-                    // Update the quantity and totals dynamically
-                    $(`#quantity-${itemId}`).text(response.newQuantity);
-                    $(`#total-${itemId}`).text(`£${response.itemTotal.toFixed(2)}`);
-                    $("#cart-total").text(`Total: £${response.cartTotal.toFixed(2)}`);
-                } else {
-                    alert(response.message);
-                }
-            },
-            error: function (xhr) {
-                const response = JSON.parse(xhr.responseText);
-                alert(response.message);
-            }
-        });
-    });
-});
+        // Update the subtotal for the item
+        subtotalCell.textContent = `£${data.itemTotal.toFixed(2)}`;
+
+        // Update the total price displayed in the cart
+        document.querySelector('#total-price').textContent = `Total Price: £${data.cartTotal.toFixed(2)}`;
+
+        // Update the cart symbol with the total quantity
+        const cartQuantity = document.querySelector('.cart-quantity');
+        cartQuantity.textContent = data.cartQuantity;
+
+            // If quantity is 0, remove the item row from the cart
+            if (data.newQuantity === 0) {
+            row.remove();
+        }
+
+    } else {
+        alert(data.message); // Show error message if any
+    }
+})
+.catch(error => console.error('Error:', error));
+}
 
 document.addEventListener("DOMContentLoaded", function () {
     // Attach click event listeners to all like buttons
@@ -80,6 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+
 
 // Adding item to wishlist
 function addToWishlist(productId) {

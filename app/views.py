@@ -231,7 +231,7 @@ def update_account():
 
     # Update password if new password is provided
     if new_password and new_password == confirm_password:
-        hashed_password = generate_password_hash(new_password)  # Assuming you are hashing passwords
+        hashed_password = generate_password_hash(new_password)  
         current_user.password = hashed_password
 
     db.session.commit()
@@ -246,11 +246,11 @@ def delete_account():
     try:
         # Delete cart items (if any)
         CartItem.query.filter_by(user_id=current_user.id).delete()
+        WishlistItem.query.filter_by(user_id=current_user.id).delete()
         # Delete order items related to the user
         orders = Order.query.filter_by(user_id=current_user.id).all()
         for order in orders:
             OrderItem.query.filter_by(order_id=order.id).delete()
-        # You can add code to delete other related user data (e.g., orders, reviews, etc.)
         # Now, delete the user
         user = User.query.get(current_user.id)
         db.session.delete(user)
@@ -267,6 +267,7 @@ def delete_account():
         flash("There was an issue deleting your account. Please try again.", 'danger')
         return redirect(url_for('dashboard'))  # Or wherever the user was before
 
+# Deleting orders from the uder dashboard
 @app.route('/delete_order/<int:order_id>')
 @login_required
 def delete_order(order_id):
@@ -352,33 +353,43 @@ def add_to_cart():
 @app.route('/update-cart', methods=['POST'])
 def update_cart():
     data = request.get_json()
-    item_id = str(data.get('itemId'))  # Always handle item_id as a string for session consistency
-    change = int(data.get('change'))  # +1 for increment, -1 for decrement
+    item_id = str(data.get('itemId')) 
+    change = int(data.get('change')) 
 
     if current_user.is_authenticated:
-        # For authenticated users
+        # For authenticated users, fetch the CartItem object from the database
         cart_item = CartItem.query.filter_by(user_id=current_user.id, product_id=item_id).first()
+
         if not cart_item:
             return jsonify({'status': 'error', 'message': 'Item not found in cart'}), 404
 
         new_quantity = cart_item.quantity + change
 
         if new_quantity < 1:
-            # Remove item from cart if quantity drops to 0
+            # If quantity is less than 1, remove the item from the cart
             db.session.delete(cart_item)
+            db.session.commit()
+            return jsonify({
+                'status': 'removed',
+                'itemId': item_id,  
+                'message': 'Item removed from cart'
+            })
         elif new_quantity > cart_item.product.stock:
+            # Ensure we don't exceed available stock
             return jsonify({'status': 'error', 'message': f'Only {cart_item.product.stock} {cart_item.product.name}(s) available'}), 400
         else:
+            # Update the quantity if valid
             cart_item.quantity = new_quantity
 
         db.session.commit()
 
-        # Calculate totals
+        # Recalculate the cart totals after the update
         cart_total = sum([ci.product.price * ci.quantity for ci in CartItem.query.filter_by(user_id=current_user.id).all()])
         item_total = cart_item.product.price * cart_item.quantity
+        total_quantity = sum([ci.quantity for ci in CartItem.query.filter_by(user_id=current_user.id).all()])
 
     else:
-        # For unauthenticated users
+        # For unauthenticated users, handle the cart in the session
         cart = session.get('cart', {})
         if item_id not in cart:
             return jsonify({'status': 'error', 'message': 'Item not found in cart'}), 404
@@ -392,22 +403,25 @@ def update_cart():
         elif new_quantity > item.get('stock', 10):  # Default stock to 10 if not specified
             return jsonify({'status': 'error', 'message': f'Only {item["stock"]} {item["name"]}(s) available'}), 400
         else:
+            # Update quantity in session
             item['quantity'] = new_quantity
 
         session['cart'] = cart
         session.modified = True
 
-        # Calculate totals
+        # Recalculate totals for session cart
         cart_total = sum([v['price'] * v['quantity'] for v in cart.values()])
         item_total = item['price'] * item['quantity']
+        total_quantity = sum([item['quantity'] for item in cart.values()])
 
+    # Return updated information to the frontend
     return jsonify({
         'status': 'success',
         'newQuantity': new_quantity,
-        'itemTotal': item_total,
-        'cartTotal': cart_total
+        'itemTotal': item_total,  # Price * quantity for this item
+        'cartTotal': cart_total,  # Sum of all item totals
+        'cartQuantity': total_quantity  # Sum of all item quantities
     })
-
 
 # Deleting items from cart
 @app.route('/delete_item/<int:item_id>')
@@ -429,6 +443,7 @@ def delete_item(item_id):
     flash("Item Removed!", 'success')
     return redirect(request.referrer or url_for('home'))
 
+# Viewing the cart
 @app.route('/cart')
 def view_cart():
     if current_user.is_authenticated:
@@ -475,6 +490,7 @@ def view_cart():
 
     return render_template('cart.html', cart=cart, total_price=total_price)
 
+# Merging the session cart with the database cart once the user has logged in. 
 @user_logged_in.connect_via(app)
 def merge_carts(sender, user):
     guest_cart = session.get('cart', {})
@@ -508,7 +524,6 @@ def merge_carts(sender, user):
     session.pop('cart', None)  
     session.modified = True
 
-
 # Clearing the session cart once the items are saved in the database cart when logged in
 @user_logged_out.connect_via(app)
 def save_cart_on_logout(sender, user):
@@ -532,6 +547,7 @@ def inject_cart_quantity():
     
     return dict(cart_total_quantity=total_quantity)
 
+# checkout for logged in users only
 @app.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
@@ -597,6 +613,7 @@ def checkout():
     # Render the checkout page
     return render_template('checkout.html', cart_items=cart_items, total_amount=total_amount)
 
+# Placing order for logged in users only 
 @app.route('/place_order', methods=['POST'])
 def place_order():
     cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
@@ -648,17 +665,7 @@ def product_details(product_id):
         'price': product.price
     })
 
-# Route for guest checkout for unauthentiacted users
-@app.route('/guest-checkout')
-def guest_checkout():
-    cart = session.get('cart', {})
-    if not cart:
-        flash("Your cart is empty.", "warning")
-        return redirect(url_for('cart'))  # Redirect to the cart page if empty
-
-    # Logic to handle checkout for guest users (non-authenticated)
-    return render_template('guest_checkout.html', cart=cart)
-
+# Adding items to wishlist only for logged in customes using ajax and javascript
 @app.route('/add_to_wishlist', methods=['POST'])
 def add_to_wishlist():
     if not current_user.is_authenticated:
@@ -699,6 +706,7 @@ def add_to_wishlist():
 
     return jsonify({'status': 'success', 'wishlist': wishlist_data})
 
+# Removing items from the wishlist using ajax and javascript
 @app.route('/delete_from_wishlist', methods=['POST'])
 @login_required
 def delete_from_wishlist():
@@ -743,7 +751,3 @@ def get_wishlist():
         for item in wishlist_items
     ]
     return jsonify({'status': 'success', 'wishlist': wishlist_data})
-
-
-
-
